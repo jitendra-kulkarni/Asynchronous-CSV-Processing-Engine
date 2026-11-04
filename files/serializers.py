@@ -11,12 +11,12 @@ class FileUploadSerializer(serializers.ModelSerializer):
 
     def validate_file(self, value):
 
-        allowed_extensions = [".pdf",".csv"]
+        allowed_extensions = [".csv"]
         extension = value.name.lower().rsplit(".",1)[-1]
 
         if f".{extension}" not in allowed_extensions:
             raise serializers.ValidationError(
-                "Only PDF & .CSV Files are Allowed."
+                "Only .CSV Files are Allowed."
             )
 
         if value.size > 10 * 1024 * 1024:

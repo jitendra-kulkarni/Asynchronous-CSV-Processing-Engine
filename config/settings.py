@@ -15,8 +15,15 @@ import os
 from dotenv import load_dotenv
 
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL",
+    "redis://127.0.0.1:6379/0",
+)
+
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    "redis://127.0.0.1:6379/1",
+)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,12 +35,16 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*lm!ho43mw6f#dy$273dch$uv&h%maq=ho)_kdpr=ywi+sxwbe'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1",
+
+).split(",")
 
 
 # Application definition
@@ -47,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'files',
+    'drf_spectacular',
     'rest_framework',
 ]
 
@@ -131,6 +143,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
@@ -142,3 +156,19 @@ MAILERS = {
 }
 
 
+REST_FRAMEWORK={
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Cloud File Processing Engine API',
+    'DESCRIPTION': 'API for uploading files, processing CSV files in the background, and checking processing results.',
+    'VERSION': '1.0.0',
+}
+
+#production security settings 
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO","https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

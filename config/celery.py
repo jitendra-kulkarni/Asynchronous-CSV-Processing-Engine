@@ -3,7 +3,7 @@ import os
 
 #celery Configurations
 
-os.environ.setdefault("DJANGO_SETTINGs_MODULE", "config.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 app = Celery("config")
 
