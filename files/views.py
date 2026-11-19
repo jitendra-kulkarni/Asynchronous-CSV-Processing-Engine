@@ -79,3 +79,34 @@ class FileResultView(APIView):
             "status": uploaded_file.status,
             "processed_row": uploaded_file.processed_row,
         }, status=status.HTTP_200_OK)
+
+
+def dashboard(request):
+
+    message = None
+    errors = None
+
+    if request.method == "POST":
+
+        serializer = FileUploadSerializer(data=request.FILES)
+
+        if serializer.is_valid():
+
+            uploaded_file = serializer.save(
+                original_name=serializer.validated_data["file"].name
+            )
+
+            process_file.delay(uploaded_file.id)
+
+            message = "File uploaded successfully!"
+
+        else:
+            errors = serializer.errors
+
+    uploaded_files = File.objects.order_by("-uploaded_at")
+
+    return render(request, "files/dashboard.html", {
+        "message": message,
+        "errors": errors,
+        "files": uploaded_files
+    })
